@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeria de Fotos</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color:  black;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #333;
+            color:#B575CF;
+            text-align: center;
+            padding: 1rem 0;
+            font-size: 1.5rem;
+        }
+
+        .gallery-item {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            color:#B575CF;
+            background-color: #333;
+        }
+
+        .card-text {
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        .card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        footer {
+            background-color: #333;
+            color: #B575CF;
+            text-align: center;
+            padding: 1rem 0;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Galeria de Fotos
+    </header>
+
+    <div class="container my-4">
+        <div class="row mb-3">
+            <div class="col-md-8 mx-auto">
+                <div class="input-group">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Pesquise por nome da foto...">
+                    <button id="searchButton" class="btn btn-dark">🔍</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" id="gallery">
+            <!-- Fotos serão inseridas dinamicamente aqui -->
+        </div>
+    </div>
+
+    <footer>
+        © 2024 Galeria de Fotos. Todos os direitos reservados.
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const apiKey = 'Absg5KUIfR4S40kTLwC8y1QmcqXrtK1AeOSyiCxIhV2z1nh37oecoUlk'; // Substitua com sua chave de API do Pexels
+
+        async function fetchPhotos(query = 'nature') {
+            try {
+                const response = await fetch(`https://api.pexels.com/v1/search?query=${query}&per_page=10`, {
+                    headers: {
+                        Authorization: apiKey
+                    }
+                });
+
+                const data = await response.json();
+                renderGallery(data.photos);
+            } catch (error) {
+                console.error('Erro ao buscar fotos:', error);
+            }
+        }
+
+        const gallery = document.getElementById('gallery');
+        const searchInput = document.getElementById('searchInput');
+
+        function renderGallery(photos) {
+            gallery.innerHTML = '';
+            if (photos.length === 0) {
+                gallery.innerHTML = '<div class="col"><p class="text-center">Nenhuma foto encontrada.</p></div>';
+                return;
+            }
+            photos.forEach(photo => {
+                const item = document.createElement('div');
+                item.className = 'col';
+
+                item.innerHTML = `
+                    <div class="card h-100 text-center gallery-item">
+                        <img src="${photo.src.medium}" class="card-img-top" alt="${photo.alt}" style="object-fit: cover; max-height: 200px;">
+                        <div class="card-body">
+                            <p class="card-text">${photo.photographer}</p>
+                        </div>
+                    </div>
+                `;
+
+                gallery.appendChild(item);
+            });
+        }
+
+        // Initial fetch
+        fetchPhotos();
+
+        // Event listener for search
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.toLowerCase();
+            fetchPhotos(query);
+        });
+    </script>
+</body>
+</html>
